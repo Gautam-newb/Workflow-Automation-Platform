@@ -1,0 +1,65 @@
+{
+  "name": "Workflow Automation Platform - Webhook to Lambda",
+  "nodes": [
+    {
+      "id": "n8n-webhook",
+      "name": "Inbound Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        260,
+        240
+      ],
+      "parameters": {
+        "path": "workflow-automation/webhook",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "options": {
+          "responseContentType": "application/json",
+          "responseBody": "={{ $json }}"
+        }
+      }
+    },
+    {
+      "id": "n8n-http-request",
+      "name": "Invoke API Gateway",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        520,
+        240
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://your-api-gateway-id.execute-api.${AWS_REGION}.amazonaws.com/prod/webhook",
+        "jsonParameters": true,
+        "options": {
+          "timeout": 30
+        },
+        "bodyParametersJson": "={{ $json }}"
+      }
+    }
+  ],
+  "connections": {
+    "Inbound Webhook": {
+      "main": [
+        [
+          {
+            "node": "Invoke API Gateway",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "workflow-automation-platform"
+    }
+  ]
+}
+

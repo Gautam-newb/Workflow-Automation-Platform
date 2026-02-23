@@ -1,0 +1,32 @@
+service: workflow-automation-platform
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: ${env:AWS_REGION, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  environment:
+    LOG_LEVEL: ${env:LOG_LEVEL, 'INFO'}
+    S3_OUTPUT_BUCKET: ${env:S3_OUTPUT_BUCKET, ''}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+          Resource:
+            - arn:aws:s3:::${env:S3_OUTPUT_BUCKET}/*
+
+functions:
+  workflowHandler:
+    handler: workflow_lambda/handler.handle_event
+    description: Handles incoming webhook events from n8n
+    events:
+      - httpApi:
+          method: POST
+          path: /webhook
+
+plugins: []
+
